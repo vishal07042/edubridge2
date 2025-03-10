@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - EduBridge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+</head>
+<body class="font-sans">
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="text-2xl font-bold text-blue-600">EduBridge</div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="{% url 'index' %}" class="hover:text-blue-600 transition-colors">Home</a>
+                    <a href="{% url 'features' %}" class="hover:text-blue-600 transition-colors">Features</a>
+                    <a href="{% url 'about' %}" class="text-blue-600 transition-colors">About</a>
+                    <a href="{% url 'contact' %}" class="hover:text-blue-600 transition-colors">Contact</a>
+                </div>
+                <div class="hidden md:flex space-x-4">
+                    <a href="{% url 'teacher_index' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Teacher</a>
+                    <a href="{% url 'student_index' %}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Student</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- About Header -->
+    <section class="pt-32 pb-20 bg-gradient-to-b from-blue-50 to-white">
+        <div class="container mx-auto px-6">
+            <h1 class="text-4xl md:text-5xl font-bold text-center mb-8" data-aos="fade-up">About EduBridge</h1>
+            <p class="text-xl text-gray-600 text-center max-w-3xl mx-auto mb-12" data-aos="fade-up" data-aos-delay="100">
+                Bridging the gap between teachers and students through innovative online education solutions.
+            </p>
+        </div>
+    </section>
+
+    <!-- Our Story -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <div data-aos="fade-right">
+                    <h2 class="text-3xl font-bold mb-6">Our Story</h2>
+                    <p class="text-gray-600 mb-4">
+                        Founded in 2024, EduBridge was created with a simple mission: to make quality education accessible to everyone, everywhere.
+                    </p>
+                    <p class="text-gray-600 mb-4">
+                        We believe that technology should enhance the teaching and learning experience, not complicate it. That's why we've built a platform that's both powerful and easy to use.
+                    </p>
+                    <p class="text-gray-600">
+                        Today, we're proud to serve thousands of teachers and students worldwide, helping them achieve their educational goals through our innovative platform.
+                    </p>
+                </div>
+                <div class="relative" data-aos="fade-left">
+                    <img src="https://img.freepik.com/free-vector/teaching-concept-illustration_114360-1708.jpg" 
+                         alt="Our Story" class="rounded-lg shadow-lg">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Our Values -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-16" data-aos="fade-up">Our Values</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="p-6 bg-white rounded-lg shadow-lg" data-aos="fade-up">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Innovation</h3>
+                    <p class="text-gray-600">We constantly push the boundaries of what's possible in online education.</p>
+                </div>
+                <div class="p-6 bg-white rounded-lg shadow-lg" data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Community</h3>
+                    <p class="text-gray-600">We believe in the power of collaborative learning and shared knowledge.</p>
+                </div>
+                <div class="p-6 bg-white rounded-lg shadow-lg" data-aos="fade-up" data-aos-delay="200">
+                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-4">Trust</h3>
+                    <p class="text-gray-600">We maintain the highest standards of security and reliability.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">EduBridge</h3>
+                    <p class="text-gray-400">Empowering educators worldwide with simple, powerful tools for online teaching.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'index' %}" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
+                        <li><a href="{% url 'features' %}" class="text-gray-400 hover:text-white transition-colors">Features</a></li>
+                        <li><a href="{% url 'about' %}" class="text-gray-400 hover:text-white transition-colors">About</a></li>
+                        <li><a href="{% url 'contact' %}" class="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>contact@edubridge.com</li>
+                        <li>+1 (555) 123-4567</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 EduBridge. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+    </script>
+</body>
+</html> 

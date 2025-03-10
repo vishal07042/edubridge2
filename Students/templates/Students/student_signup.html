@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Sign Up - EduBridge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <a href="/" class="text-2xl font-bold text-blue-600">EduBridge</a>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="{% url 'students:student_login' %}" class="text-blue-600 hover:text-blue-700">Login</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Signup Form -->
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <div>
+                <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                    Create your account
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    Or
+                    <a href="{% url 'students:student_login' %}" class="font-medium text-blue-600 hover:text-blue-500">
+                        sign in to your account
+                    </a>
+                </p>
+            </div>
+
+            {% if messages %}
+            <div class="rounded-md p-4 mb-4">
+                {% for message in messages %}
+                    <div class="p-4 {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %} rounded-lg">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form class="mt-8 space-y-6" method="POST">
+                {% csrf_token %}
+                <div class="rounded-md shadow-sm -space-y-px">
+                    <div>
+                        <label for="first_name" class="sr-only">First Name</label>
+                        <input id="first_name" name="first_name" type="text" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                            placeholder="First Name">
+                    </div>
+                    <div>
+                        <label for="last_name" class="sr-only">Last Name</label>
+                        <input id="last_name" name="last_name" type="text" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                            placeholder="Last Name">
+                    </div>
+                    <div>
+                        <label for="email" class="sr-only">Email address</label>
+                        <input id="email" name="email" type="email" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                            placeholder="Email address">
+                    </div>
+                    <div>
+                        <label for="username" class="sr-only">Username</label>
+                        <input id="username" name="username" type="text" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                            placeholder="Username">
+                    </div>
+                    <div>
+                        <label for="phone" class="sr-only">Phone</label>
+                        <input id="phone" name="phone" type="tel"
+                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                            placeholder="Phone (optional)">
+                    </div>
+                    <div>
+                        <label for="password1" class="sr-only">Password</label>
+                        <input id="password1" name="password1" type="password" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                            placeholder="Password">
+                    </div>
+                    <div>
+                        <label for="password2" class="sr-only">Confirm Password</label>
+                        <input id="password2" name="password2" type="password" required
+                            class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                            placeholder="Confirm Password">
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit"
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Create Account
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 md:flex md:items-center md:justify-between lg:px-8">
+            <div class="mt-8 md:mt-0 md:order-1">
+                <p class="text-center text-base text-gray-400">
+                    &copy; 2024 EduBridge. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html> 

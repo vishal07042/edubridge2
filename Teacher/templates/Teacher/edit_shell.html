@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Shell - {{ course.name }}</title>
+</head>
+<body>
+    <h1>Edit Shell {{ shell.shell_number }}</h1>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <div>
+        <form method="post">
+            {% csrf_token %}
+            <div>
+                <label for="description">Shell Description:</label><br>
+                <textarea id="description" name="description" rows="4" required>{{ shell.description }}</textarea><br><br>
+                
+                <label for="video_link">Video Link (Embedded URL):</label><br>
+                <input type="url" id="video_link" name="video_link" value="{{ shell.video_link }}" style="width: 100%;"><br><br>
+                
+                <input type="submit" value="Update Shell">
+            </div>
+        </form>
+    </div>
+    <br>
+    <div>
+        <a href="{% url 'course_detail' course.id %}"><button type="button">Back to Course</button></a>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Doubts - EduBridge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-blue-800 text-white">
+            <div class="p-4">
+                <div class="text-2xl font-bold mb-8">EduBridge</div>
+                <nav class="space-y-2">
+                    <a href="{% url 'teacher_dashboard' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'teacher_dashboard' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-home w-6"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="{% url 'course_listing' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'course_listing' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-book w-6"></i>
+                        <span>My Courses</span>
+                    </a>
+                    <a href="{% url 'student_management' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'student_management' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-users w-6"></i>
+                        <span>Students</span>
+                    </a>
+                    <a href="{% url 'analytics' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'analytics' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-chart-line w-6"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="{% url 'doubt' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'doubt' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-question-circle w-6"></i>
+                        <span>Doubts</span>
+                    </a>
+                    <a href="{% url 'settings' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'settings' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-cog w-6"></i>
+                        <span>Settings</span>
+                    </a>
+                </nav>
+                <div class="mt-8 pt-4 border-t border-blue-700">
+                    <a href="{% url 'teacher_logout' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 text-red-300 hover:bg-red-900/50">
+                        <i class="fas fa-sign-out-alt w-6"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <!-- Top Navigation -->
+            <div class="bg-white shadow-sm">
+                <div class="flex justify-between items-center px-8 py-4">
+                    <div class="flex items-center space-x-4">
+                        <button onclick="toggleSidebar()" class="text-gray-500 hover:text-gray-600 focus:outline-none">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h1 class="text-xl font-semibold text-gray-800">Student Doubts</h1>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doubts Content -->
+            <div class="p-8">
+                <div class="grid grid-cols-1 gap-6">
+                    <!-- Doubt Filters -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-lg font-semibold">Recent Doubts</h2>
+                            <div class="flex space-x-2">
+                                <button class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">All</button>
+                                <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Pending</button>
+                                <button class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Resolved</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Doubt List -->
+                        <div class="space-y-4">
+                            {% for course in teacher.course_set.all %}
+                                {% for student in course.student_set.all %}
+                                    <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <div>
+                                                <h3 class="font-medium">{{ student.name }}</h3>
+                                                <p class="text-sm text-gray-500">{{ course.name }}</p>
+                                            </div>
+                                            <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">Pending</span>
+                                        </div>
+                                        <p class="text-gray-600 mb-4">Sample doubt question will appear here...</p>
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-sm text-gray-500">2 hours ago</span>
+                                            <button class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
+                                                Reply
+                                            </button>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% empty %}
+                                <div class="text-center py-12">
+                                    <div class="mx-auto h-24 w-24 text-gray-400 mb-4">
+                                        <i class="fas fa-question-circle text-6xl"></i>
+                                    </div>
+                                    <h3 class="text-lg font-medium text-gray-900">No doubts yet</h3>
+                                    <p class="mt-1 text-gray-500">When students have questions, they'll appear here</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.w-64');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+    </script>
+</body>
+</html> 

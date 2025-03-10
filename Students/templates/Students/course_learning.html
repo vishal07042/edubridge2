@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ course.name }} - Learning</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <a href="{% url 'students:student_index' %}" class="text-2xl font-bold text-blue-600">EduBridge</a>
+                </div>
+                <div class="flex items-center space-x-6">
+                    <a href="{% url 'students:student_dashboard' %}" class="text-gray-600 hover:text-gray-800">
+                        <i class="fas fa-th-large mr-2"></i>
+                        Dashboard
+                    </a>
+                    <span class="text-gray-600">{{ user.first_name }}</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Course Content -->
+    <div class="container mx-auto px-6 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <!-- Main Content Area -->
+            <div class="lg:col-span-3">
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <!-- Video Player -->
+                    <div class="aspect-w-16 aspect-h-9 bg-black">
+                        {% if current_shell.video_link %}
+                            <iframe src="{{ current_shell.video_link }}" 
+                                    class="w-full h-[600px]"
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowfullscreen>
+                            </iframe>
+                        {% elif current_shell.video_file %}
+                            <video class="w-full h-[600px]" controls>
+                                <source src="{{ current_shell.video_file.url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        {% endif %}
+                    </div>
+
+                    <!-- Video Info -->
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h1 class="text-2xl font-bold">{{ current_shell.description }}</h1>
+                            <span class="text-gray-600">Lecture {{ current_shell.shell_number }} of {{ total_shells }}</span>
+                        </div>
+
+                        <!-- Navigation Buttons -->
+                        <div class="flex items-center justify-between mt-6">
+                            {% if prev_shell %}
+                                <a href="{% url 'students:course_learning' course.id prev_shell.shell_number %}" 
+                                   class="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                                    <i class="fas fa-arrow-left mr-2"></i>
+                                    Previous
+                                </a>
+                            {% else %}
+                                <div></div>
+                            {% endif %}
+
+                            {% if next_shell %}
+                                <a href="{% url 'students:course_learning' course.id next_shell.shell_number %}" 
+                                   class="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                    Next
+                                    <i class="fas fa-arrow-right ml-2"></i>
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        {% if current_shell.pdf_file %}
+                            <div class="mt-6">
+                                <h3 class="text-lg font-semibold mb-4">Lecture Notes</h3>
+                                <!-- PDF Viewer -->
+                                <div class="w-full h-[600px] mb-4 rounded-lg overflow-hidden border border-gray-200">
+                                    <object
+                                        data="{{ current_shell.pdf_file.url }}"
+                                        type="application/pdf"
+                                        class="w-full h-full">
+                                        <div class="flex items-center justify-center h-full bg-gray-50">
+                                            <div class="text-center">
+                                                <p class="text-gray-600 mb-4">Unable to display PDF directly.</p>
+                                                <a href="{{ current_shell.pdf_file.url }}" 
+                                                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                                   target="_blank">
+                                                    <i class="fas fa-external-link-alt mr-2"></i>
+                                                    Open PDF in New Tab
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </object>
+                                </div>
+                                <!-- Download Button -->
+                                <div class="flex justify-end space-x-4">
+                                    <a href="{{ current_shell.pdf_file.url }}" 
+                                       target="_blank"
+                                       class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                                        <i class="fas fa-external-link-alt mr-2"></i>
+                                        Open in New Tab
+                                    </a>
+                                    <a href="{{ current_shell.pdf_file.url }}" 
+                                       download
+                                       class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                        <i class="fas fa-download mr-2"></i>
+                                        Download PDF
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-lg font-semibold mb-4">Course Content</h2>
+                    <div class="space-y-2">
+                        {% for shell in all_shells %}
+                            <a href="{% url 'students:course_learning' course.id shell.shell_number %}" 
+                               class="flex items-center p-3 rounded-lg {% if shell.id == current_shell.id %}bg-blue-50 text-blue-600{% else %}hover:bg-gray-50{% endif %}">
+                                <div class="flex-1">
+                                    <p class="font-medium {% if shell.id == current_shell.id %}text-blue-600{% else %}text-gray-700{% endif %}">
+                                        {{ shell.description|truncatechars:30 }}
+                                    </p>
+                                    <p class="text-sm text-gray-500">Lecture {{ shell.shell_number }}</p>
+                                </div>
+                                {% if shell.id == current_shell.id %}
+                                    <i class="fas fa-play text-blue-600"></i>
+                                {% elif enrollment.completed_lectures|length > shell.shell_number %}
+                                    <i class="fas fa-check text-green-600"></i>
+                                {% endif %}
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - EduBridge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f7fa;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <a href="{% url 'students:student_index' %}" class="text-2xl font-bold text-blue-600">EduBridge</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Payment Container -->
+    <div class="min-h-screen py-12">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <!-- Order Summary -->
+                <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+                    <div class="flex items-center justify-between pb-4 border-b">
+                        <div>
+                            <h3 class="font-semibold text-lg">{{ course.name }}</h3>
+                            <p class="text-gray-600">by {{ course.teacher.name }}</p>
+                        </div>
+                        <div class="text-2xl font-bold text-blue-600">₹{{ course.price }}</div>
+                    </div>
+                </div>
+
+                <!-- Payment Methods -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- UPI Section -->
+                    <div class="bg-white rounded-lg shadow-lg p-8">
+                        <h2 class="text-xl font-bold mb-6">Pay using UPI</h2>
+                        
+                        <!-- QR Code -->
+                        <div class="flex justify-center mb-6">
+                            <div class="p-4 bg-white border-2 border-gray-200 rounded-lg">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg" 
+                                     alt="QR Code" 
+                                     class="w-48 h-48">
+                            </div>
+                        </div>
+
+                        <!-- UPI ID -->
+                        <div class="text-center mb-6">
+                            <p class="text-gray-600 mb-2">UPI ID</p>
+                            <div class="flex items-center justify-center space-x-2">
+                                <span class="font-medium">edubridge@upi</span>
+                                <button onclick="copyUPI()" class="text-blue-600 hover:text-blue-700">
+                                    <i class="far fa-copy"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- UPI Apps -->
+                        <div class="grid grid-cols-3 gap-4">
+                            <a href="#" class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/2560px-Paytm_Logo_%28standalone%29.svg.png" alt="Paytm" class="h-8 mb-2">
+                                <span class="text-sm text-gray-600">Paytm</span>
+                            </a>
+                            <a href="#" class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1280px-UPI-Logo-vector.svg.png" alt="GPay" class="h-8 mb-2">
+                                <span class="text-sm text-gray-600">Google Pay</span>
+                            </a>
+                            <a href="#" class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/PhonePe_Logo.svg/1280px-PhonePe_Logo.svg.png" alt="PhonePe" class="h-8 mb-2">
+                                <span class="text-sm text-gray-600">PhonePe</span>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Other Payment Methods -->
+                    <div class="bg-white rounded-lg shadow-lg p-8">
+                        <h2 class="text-xl font-bold mb-6">Other Payment Methods</h2>
+                        
+                        <!-- Payment Options -->
+                        <div class="space-y-4">
+                            <a href="#" class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/6124/6124998.png" alt="Net Banking" class="w-8 h-8 mr-3">
+                                    <span>Net Banking</span>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </a>
+                            
+                            <a href="#" class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/179/179457.png" alt="Debit Card" class="w-8 h-8 mr-3">
+                                    <span>Debit Card</span>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </a>
+
+                            <a href="#" class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/349/349221.png" alt="Credit Card" class="w-8 h-8 mr-3">
+                                    <span>Credit Card</span>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </a>
+
+                            <a href="#" class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                                <div class="flex items-center">
+                                    <img src="https://cdn-icons-png.flaticon.com/512/2721/2721724.png" alt="Wallet" class="w-8 h-8 mr-3">
+                                    <span>Wallet</span>
+                                </div>
+                                <i class="fas fa-chevron-right text-gray-400"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Notice -->
+                <div class="mt-6 text-center">
+                    <div class="flex items-center justify-center space-x-4 text-gray-600 mb-6">
+                        <div class="flex items-center">
+                            <i class="fas fa-lock text-green-600 mr-2"></i>
+                            <span>100% Secure Payments</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-shield-alt text-green-600 mr-2"></i>
+                            <span>End-to-end Encrypted</span>
+                        </div>
+                    </div>
+
+                    <!-- Pay Now Button -->
+                    <form action="{% url 'students:process_payment' course.id %}" method="POST" class="max-w-md mx-auto">
+                        {% csrf_token %}
+                        <button type="submit" 
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white text-xl font-bold py-4 px-8 rounded-lg shadow-lg transform transition-all duration-300 hover:scale-105 flex items-center justify-center">
+                            <i class="fas fa-lock mr-3"></i>
+                            Pay Now ₹{{ course.price }}
+                        </button>
+                        <p class="text-sm text-gray-500 mt-3">By clicking Pay Now, you agree to our Terms and Conditions</p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyUPI() {
+            navigator.clipboard.writeText('edubridge@upi');
+            alert('UPI ID copied to clipboard!');
+        }
+    </script>
+</body>
+</html> 

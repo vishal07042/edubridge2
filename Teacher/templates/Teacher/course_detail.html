@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ course.name }} - Course Details</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        .modal-active {
+            overflow-y: visible !important;
+            padding-right: 0 !important;
+        }
+        .animate-slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Top Navigation -->
+        <nav class="bg-white shadow-sm">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center">
+                        <a href="{% url 'teacher_dashboard' %}" class="text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+                        </a>
+                    </div>
+                    <div class="text-xl font-semibold text-gray-800">{{ course.name }}</div>
+                    <div class="w-10"></div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            {% if messages %}
+            <div class="mb-8">
+                {% for message in messages %}
+                <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Course Info -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">Description</h3>
+                        <p class="mt-1 text-lg text-gray-900">{{ course.description }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">Price</h3>
+                        <p class="mt-1 text-lg text-gray-900">₹{{ course.price }}</p>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500">Created</h3>
+                        <p class="mt-1 text-lg text-gray-900">{{ course.created_at|date:"d M Y" }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shells Section -->
+            <div class="mb-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900">Course Content</h2>
+                    <button onclick="openModal('shellModal')" 
+                            class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-plus mr-2"></i>
+                        Add New Shell
+                    </button>
+                </div>
+
+                {% if shells %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for shell in shells %}
+                    <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                        <div class="p-6">
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <h3 class="text-lg font-semibold text-gray-900">Shell {{ shell.shell_number }}</h3>
+                                    <p class="text-sm text-gray-500">{{ shell.created_at|date:"d M Y" }}</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="openEditShellModal('{{ shell.id }}', '{{ shell.description }}')" 
+                                            class="text-gray-400 hover:text-gray-500">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form method="post" action="{% url 'delete_shell' course.id shell.id %}" class="inline"
+                                          onsubmit="return confirm('Are you sure you want to delete this shell?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="text-red-400 hover:text-red-500">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            
+                            <p class="text-gray-600 mb-4">{{ shell.description }}</p>
+                            
+                            <div class="space-y-3">
+                                {% if shell.video_file or shell.video_link %}
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-video mr-2"></i>
+                                    <span>Video Available</span>
+                                </div>
+                                {% endif %}
+                                
+                                {% if shell.pdf_file %}
+                                <div class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-file-pdf mr-2"></i>
+                                    <span>PDF Available</span>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                <a href="{% url 'shell_detail' course.id shell.id %}" 
+                                   class="inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100">
+                                    Manage Content
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-12 bg-white rounded-lg shadow-sm">
+                    <div class="mx-auto h-24 w-24 text-gray-400 mb-4">
+                        <i class="fas fa-book-open text-6xl"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900">No content yet</h3>
+                    <p class="mt-1 text-gray-500">Get started by adding your first shell</p>
+                    <button onclick="openModal('shellModal')" 
+                            class="mt-6 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700">
+                        <i class="fas fa-plus mr-2"></i>Add First Shell
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Shell Modal -->
+    <div id="shellModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white animate-slide-up">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4 text-center">Add New Shell</h3>
+                <form method="post" action="{% url 'create_shell' course.id %}" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea name="description" rows="4" required 
+                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="closeModal('shellModal')" 
+                                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            Create Shell
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Shell Modal -->
+    <div id="editShellModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white animate-slide-up">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4 text-center">Edit Shell</h3>
+                <form id="editShellForm" method="post" action="" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea name="description" id="editShellDescription" rows="4" required 
+                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="closeModal('editShellModal')" 
+                                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.body.classList.add('modal-active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.body.classList.remove('modal-active');
+        }
+
+        function openEditShellModal(shellId, description) {
+            const modal = document.getElementById('editShellModal');
+            const form = document.getElementById('editShellForm');
+            const descriptionInput = document.getElementById('editShellDescription');
+
+            form.action = `/teacher/course/{{ course.id }}/shell/${shellId}/edit/`;
+            descriptionInput.value = description;
+
+            modal.classList.remove('hidden');
+            document.body.classList.add('modal-active');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.add('hidden');
+                document.body.classList.remove('modal-active');
+            }
+        }
+    </script>
+</body>
+</html> 

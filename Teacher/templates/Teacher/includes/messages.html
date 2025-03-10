@@ -1,0 +1,48 @@
+{% if messages %}
+<div class="fixed top-4 right-4 z-50" id="message-container">
+    {% for message in messages %}
+    <div class="message bg-white shadow-lg rounded-lg p-4 mb-4 transform transition-all duration-300 opacity-0 translate-y-[-1rem]"
+         style="animation: slideIn 0.3s ease forwards, slideOut 0.3s ease 1.7s forwards;">
+        <div class="flex items-center {% if message.tags == 'success' %}text-green-600{% elif message.tags == 'error' %}text-red-600{% else %}text-blue-600{% endif %}">
+            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} text-xl mr-2"></i>
+            <p class="font-medium">{{ message }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-1rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-1rem);
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const messageContainer = document.getElementById('message-container');
+    if (messageContainer) {
+        setTimeout(() => {
+            messageContainer.remove();
+        }, 2000);
+    }
+});
+</script>
+{% endif %} 

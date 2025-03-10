@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ course.name }} - Demo Lectures</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .video-card {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .video-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+        .video-card:hover::after {
+            left: 100%;
+        }
+        .video-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+        }
+        
+        .video-thumbnail {
+            position: relative;
+            padding-bottom: 56.25%;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            overflow: hidden;
+        }
+        
+        .video-thumbnail::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.7));
+            z-index: 1;
+        }
+        
+        .video-thumbnail img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .video-card:hover .video-thumbnail img {
+            transform: scale(1.05);
+        }
+        
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+        
+        .play-button-circle {
+            transition: all 0.3s ease;
+            transform-origin: center;
+        }
+        
+        .video-card:hover .play-button-circle {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(37, 99, 235, 0.5);
+        }
+        
+        .duration-badge {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.75);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 2;
+        }
+        
+        .video-info {
+            transition: all 0.3s ease;
+        }
+        
+        .video-modal {
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .course-stats {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            background: rgba(37, 99, 235, 0.1);
+            border-radius: 9999px;
+            color: #2563eb;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .course-stats:hover {
+            background: rgba(37, 99, 235, 0.15);
+            transform: translateY(-1px);
+        }
+        
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    {% include 'Teacher/includes/messages.html' %}
+    
+    <!-- Navigation -->
+    <nav class="glass-effect sticky top-0 z-30">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="{% url 'all_courses' %}" class="flex items-center space-x-2 group">
+                    <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                        <i class="fas fa-arrow-left text-blue-600"></i>
+                    </div>
+                    <span class="text-xl font-bold text-gray-800">Back to Courses</span>
+                </a>
+                <a href="{% url 'teacher_logout' %}" 
+                   class="flex items-center space-x-2 text-red-500 hover:text-red-600 transition-colors">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Course Header -->
+    <div class="glass-effect mt-6 mx-4 sm:mx-6 lg:mx-8 rounded-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                <div class="flex-1">
+                    <h1 class="text-3xl font-bold text-gray-900 mb-3">{{ course.name }}</h1>
+                    <p class="text-lg text-gray-600 mb-6">{{ course.description }}</p>
+                    <div class="flex flex-wrap gap-4">
+                        <div class="course-stats">
+                            <i class="fas fa-user-tie mr-2"></i>
+                            <span>{{ course.teacher.name }}</span>
+                        </div>
+                        <div class="course-stats">
+                            <i class="fas fa-book-reader mr-2"></i>
+                            <span>{{ course.shells.count }} Lectures</span>
+                        </div>
+                        <div class="course-stats">
+                            <i class="fas fa-indian-rupee-sign mr-2"></i>
+                            <span>{{ course.price }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex-shrink-0">
+                    <button class="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
+                        <i class="fas fa-graduation-cap mr-2"></i>
+                        Enroll Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo Lectures -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-bold text-gray-900">Demo Lectures</h2>
+            <div class="text-sm text-gray-500">
+                <i class="fas fa-info-circle mr-2"></i>
+                Click on any video to watch
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for shell in demo_lectures %}
+            <div class="video-card bg-white rounded-xl shadow-sm cursor-pointer"
+                 onclick="playVideo('{% if shell.video_file %}{{ shell.video_file.url }}{% else %}{{ shell.video_link }}{% endif %}', '{{ shell.description }}')">
+                <!-- Video Thumbnail -->
+                <div class="video-thumbnail rounded-t-xl">
+                    {% if shell.thumbnail %}
+                        <img src="{{ shell.thumbnail.url }}" alt="Video thumbnail">
+                    {% else %}
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <i class="fas fa-video text-white text-4xl opacity-75"></i>
+                        </div>
+                    {% endif %}
+                    <!-- Play Button -->
+                    <div class="play-button">
+                        <div class="play-button-circle w-16 h-16 bg-blue-600 bg-opacity-90 rounded-full flex items-center justify-center">
+                            <i class="fas fa-play text-white text-xl ml-1"></i>
+                        </div>
+                    </div>
+                    <div class="duration-badge">
+                        <i class="fas fa-clock mr-1"></i>
+                        Free
+                    </div>
+                </div>
+                <!-- Video Info -->
+                <div class="p-4">
+                    <div class="flex flex-col gap-2 mb-3">
+                        <span class="text-xs font-medium text-blue-600 uppercase tracking-wider">{{ course.name }}</span>
+                        <div class="flex items-start justify-between">
+                            <h3 class="font-semibold text-gray-900">Lecture {{ shell.shell_number }}</h3>
+                            <span class="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded-full">Demo</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 line-clamp-2">{{ shell.description }}</p>
+                    <div class="mt-3 flex items-center justify-between text-sm">
+                        <span class="text-gray-500">
+                            <i class="fas fa-list-ol mr-1"></i>
+                            Part {{ shell.shell_number }}
+                        </span>
+                        <span class="text-blue-600 hover:text-blue-700">
+                            Watch Now
+                            <i class="fas fa-arrow-right ml-1"></i>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-3">
+                <div class="glass-effect rounded-xl p-12 text-center">
+                    <div class="mx-auto h-24 w-24 text-blue-200 mb-6">
+                        <i class="fas fa-video text-6xl"></i>
+                    </div>
+                    <h3 class="text-xl font-medium text-gray-900 mb-2">No demo lectures available</h3>
+                    <p class="text-gray-500">Check back later for demo content</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Video Modal -->
+    <div id="videoModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden backdrop-blur-sm">
+        <div class="video-modal absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl p-4">
+            <div class="bg-white rounded-xl shadow-2xl overflow-hidden">
+                <div class="p-4 flex justify-between items-center border-b">
+                    <h3 id="videoTitle" class="text-lg font-semibold text-gray-800"></h3>
+                    <button onclick="closeVideoModal()" class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-times text-gray-600"></i>
+                    </button>
+                </div>
+                <div class="video-container bg-black">
+                    <video id="videoPlayer" controls class="w-full">
+                        <source src="" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function playVideo(videoUrl, title) {
+            const modal = document.getElementById('videoModal');
+            const player = document.getElementById('videoPlayer');
+            const videoTitle = document.getElementById('videoTitle');
+            
+            if (!videoUrl) {
+                console.error('No video URL provided');
+                return;
+            }
+            
+            player.src = videoUrl;
+            videoTitle.textContent = title || 'Demo Lecture';
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            
+            if (videoUrl.endsWith('.mp4') || videoUrl.endsWith('.webm')) {
+                player.play();
+            }
+        }
+
+        function closeVideoModal() {
+            const modal = document.getElementById('videoModal');
+            const player = document.getElementById('videoPlayer');
+            
+            player.pause();
+            player.src = '';
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('videoModal').addEventListener('click', (e) => {
+            if (e.target.id === 'videoModal') {
+                closeVideoModal();
+            }
+        });
+
+        // Escape key to close modal
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeVideoModal();
+            }
+        });
+    </script>
+</body>
+</html> 

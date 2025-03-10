@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Course</title>
+</head>
+<body>
+    <h1>Edit Course</h1>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    <div>
+        <form method="post">
+            {% csrf_token %}
+            <div>
+                <label for="name">Course Name:</label><br>
+                <input type="text" id="name" name="name" value="{{ course.name }}" required><br><br>
+                
+                <label for="description">Course Description:</label><br>
+                <textarea id="description" name="description" rows="4" required>{{ course.description }}</textarea><br><br>
+                
+                <label for="price">Course Price (₹):</label><br>
+                <input type="number" id="price" name="price" min="0" step="0.01" value="{{ course.price }}" required><br><br>
+                
+                <input type="submit" value="Update Course">
+            </div>
+        </form>
+    </div>
+    <br>
+    <div>
+        <a href="{% url 'teacher_dashboard' %}"><button>Back to Dashboard</button></a>
+    </div>
+</body>
+</html> 

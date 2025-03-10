@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - EduBridge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-blue-800 text-white">
+            <div class="p-4">
+                <div class="text-2xl font-bold mb-8">EduBridge</div>
+                <nav class="space-y-2">
+                    <a href="{% url 'teacher_dashboard' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'teacher_dashboard' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-home w-6"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="{% url 'course_listing' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'course_listing' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-book w-6"></i>
+                        <span>My Courses</span>
+                    </a>
+                    <a href="{% url 'student_management' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'student_management' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-users w-6"></i>
+                        <span>Students</span>
+                    </a>
+                    <a href="{% url 'analytics' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'analytics' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-chart-line w-6"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="{% url 'doubt' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'doubt' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-question-circle w-6"></i>
+                        <span>Doubts</span>
+                    </a>
+                    <a href="{% url 'settings' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'settings' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-cog w-6"></i>
+                        <span>Settings</span>
+                    </a>
+                </nav>
+                <div class="mt-8 pt-4 border-t border-blue-700">
+                    <a href="{% url 'teacher_logout' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 text-red-300 hover:bg-red-900/50">
+                        <i class="fas fa-sign-out-alt w-6"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <!-- Top Navigation -->
+            <div class="bg-white shadow-sm">
+                <div class="flex justify-between items-center px-8 py-4">
+                    <div class="flex items-center space-x-4">
+                        <button onclick="toggleSidebar()" class="text-gray-500 hover:text-gray-600 focus:outline-none">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h1 class="text-xl font-semibold text-gray-800">Analytics</h1>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Content -->
+            <div class="p-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Course Performance -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-lg font-semibold mb-4">Course Performance</h2>
+                        <div class="space-y-4">
+                            {% for course in teacher.course_set.all %}
+                            <div class="border-b pb-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <h3 class="font-medium">{{ course.name }}</h3>
+                                    <span class="text-blue-600">{{ course.student_set.count }} Students</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full" style="width: {{ course.student_set.count }}0%"></div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Student Growth -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-lg font-semibold mb-4">Student Growth</h2>
+                        <div class="h-64 flex items-center justify-center">
+                            <p class="text-gray-500">Student growth chart will be displayed here</p>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Analysis -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-lg font-semibold mb-4">Revenue Analysis</h2>
+                        <div class="h-64 flex items-center justify-center">
+                            <p class="text-gray-500">Revenue analysis chart will be displayed here</p>
+                        </div>
+                    </div>
+
+                    <!-- Content Statistics -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-lg font-semibold mb-4">Content Statistics</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-center p-4 bg-blue-50 rounded-lg">
+                                <p class="text-2xl font-bold text-blue-600">{{ total_videos|default:"0" }}</p>
+                                <p class="text-sm text-gray-600">Total Videos</p>
+                            </div>
+                            <div class="text-center p-4 bg-green-50 rounded-lg">
+                                <p class="text-2xl font-bold text-green-600">{{ total_pdfs|default:"0" }}</p>
+                                <p class="text-sm text-gray-600">Total PDFs</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.w-64');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+    </script>
+</body>
+</html> 

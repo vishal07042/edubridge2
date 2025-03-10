@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - EduBridge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .modal {
+            transition: opacity 0.25s ease;
+        }
+        .modal-active {
+            overflow-y: visible !important;
+            padding-right: 0 !important;
+        }
+        .animate-slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        /* Message animations */
+        .message-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            pointer-events: none;
+        }
+        .message {
+            animation: fadeInOut 2s ease-in-out;
+            opacity: 0;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            background-color: rgba(0, 200, 0, 0.9);
+            color: white;
+            font-weight: 500;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 0.5rem;
+            white-space: nowrap;
+        }
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            10% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            90% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    {% include 'Teacher/includes/messages.html' %}
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-blue-800 text-white">
+            <div class="p-4">
+                <div class="text-2xl font-bold mb-8">EduBridge</div>
+                <nav class="space-y-2">
+                    <a href="{% url 'teacher_dashboard' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'teacher_dashboard' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-home w-6"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="{% url 'course_listing' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'course_listing' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-book w-6"></i>
+                        <span>My Courses</span>
+                    </a>
+                    <a href="{% url 'student_management' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'student_management' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-users w-6"></i>
+                        <span>Students</span>
+                    </a>
+                    <a href="{% url 'analytics' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'analytics' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-chart-line w-6"></i>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="{% url 'doubt' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'doubt' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-question-circle w-6"></i>
+                        <span>Doubts</span>
+                    </a>
+                    <a href="{% url 'settings' %}" 
+                       class="flex items-center py-2.5 px-4 rounded transition duration-200 {% if request.resolver_match.url_name == 'settings' %}bg-blue-900{% else %}hover:bg-blue-700{% endif %}">
+                        <i class="fas fa-cog w-6"></i>
+                        <span>Settings</span>
+                    </a>
+                </nav>
+                <div class="mt-8 pt-4 border-t border-blue-700">
+                    <button onclick="handleLogout()" 
+                            class="w-full flex items-center py-2.5 px-4 rounded transition duration-200 text-red-300 hover:bg-red-900/50">
+                        <i class="fas fa-sign-out-alt w-6"></i>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 overflow-auto">
+            <!-- Top Navigation -->
+            <div class="bg-white shadow-sm">
+                <div class="flex justify-between items-center px-8 py-4">
+                    <div class="flex items-center space-x-4">
+                        <button onclick="toggleSidebar()" class="text-gray-500 hover:text-gray-600 focus:outline-none">
+                            <i class="fas fa-bars text-xl"></i>
+                        </button>
+                        <h1 class="text-xl font-semibold text-gray-800">{% block page_title %}Dashboard{% endblock %}</h1>
+                    </div>
+                    <div class="flex items-center space-x-6">
+                        <div class="relative">
+                            <button onclick="toggleNotifications()" 
+                                    class="text-gray-500 hover:text-gray-600 focus:outline-none relative">
+                                <i class="fas fa-bell text-xl"></i>
+                                <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    {{ notifications_count|default:"0" }}
+                                </span>
+                            </button>
+                            <!-- Notifications dropdown will be added here -->
+                        </div>
+                        <div class="relative group">
+                            <button class="flex items-center space-x-3 focus:outline-none">
+                                <img src="https://ui-avatars.com/api/?name={{ request.user.teacher.name }}&background=3B82F6&color=fff" 
+                                     alt="Profile" 
+                                     class="w-10 h-10 rounded-full border-2 border-blue-500">
+                                <div class="text-left hidden md:block">
+                                    <p class="text-sm font-medium text-gray-700">{{ request.user.teacher.name }}</p>
+                                    <p class="text-xs text-gray-500">Teacher</p>
+                                </div>
+                                <i class="fas fa-chevron-down text-gray-400 text-sm"></i>
+                            </button>
+                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 hidden group-hover:block">
+                                <a href="{% url 'settings' %}" class="block px-4 py-2 text-gray-700 hover:bg-blue-50 transition-colors">
+                                    <i class="fas fa-user mr-2"></i>Profile Settings
+                                </a>
+                                <button onclick="handleLogout()" class="w-full text-left block px-4 py-2 text-red-600 hover:bg-red-50 transition-colors">
+                                    <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div class="p-8">
+                <!-- Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-blue-100 rounded-full">
+                                <i class="fas fa-book text-blue-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-gray-500 text-sm">Total Courses</h3>
+                                <p class="text-2xl font-semibold">{{ total_courses }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-green-100 rounded-full">
+                                <i class="fas fa-users text-green-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-gray-500 text-sm">Total Students</h3>
+                                <p class="text-2xl font-semibold">{{ total_students }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-purple-100 rounded-full">
+                                <i class="fas fa-video text-purple-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-gray-500 text-sm">Total Videos</h3>
+                                <p class="text-2xl font-semibold">{{ total_videos }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-yellow-100 rounded-full">
+                                <i class="fas fa-file-pdf text-yellow-600 text-xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-gray-500 text-sm">Total PDFs</h3>
+                                <p class="text-2xl font-semibold">{{ total_pdfs }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="mb-8">
+                    <h2 class="text-xl font-semibold mb-4">Quick Actions</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <button onclick="openModal('courseModal')" 
+                                class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow text-left">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-blue-100 rounded-full">
+                                    <i class="fas fa-plus text-blue-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-semibold">Add New Course</h3>
+                                    <p class="text-sm text-gray-500">Create a new course</p>
+                                </div>
+                            </div>
+                        </button>
+                        <a href="{% url 'student_management' %}" 
+                           class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow text-left">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-green-100 rounded-full">
+                                    <i class="fas fa-user-plus text-green-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-semibold">Manage Students</h3>
+                                    <p class="text-sm text-gray-500">View and add students</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="bg-white rounded-lg shadow p-6 hover:shadow-lg transition-shadow">
+                            <div class="flex items-center">
+                                <div class="p-3 bg-purple-100 rounded-full">
+                                    <i class="fas fa-chart-bar text-purple-600"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="font-semibold">View Analytics</h3>
+                                    <p class="text-sm text-gray-500">Track performance</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- My Courses -->
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-semibold">My Courses</h2>
+                        <button onclick="openModal('courseModal')" 
+                                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                            <i class="fas fa-plus mr-2"></i>Add Course
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {% if courses %}
+                            {% for course in courses %}
+                            <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
+                                <div class="p-6">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div>
+                                            <h3 class="text-lg font-semibold">{{ course.name }}</h3>
+                                            <p class="text-gray-600">₹{{ course.price }}</p>
+                                        </div>
+                                        <div class="bg-blue-100 rounded-lg px-3 py-2 text-center">
+                                            <p class="text-2xl font-bold text-blue-600">{{ course.student_set.all|length }}</p>
+                                            <p class="text-sm text-blue-600">Students</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between items-center mb-4">
+                                        <span class="text-sm text-gray-500">
+                                            <i class="fas fa-calendar-alt mr-1"></i>
+                                            {{ course.created_at|date:"d M Y" }}
+                                        </span>
+                                        <span class="text-sm text-gray-500">
+                                            <i class="fas fa-book-reader mr-1"></i>
+                                            {{ course.lecture_count }} Lectures
+                                        </span>
+                                    </div>
+                                    <div class="pt-4 border-t border-gray-200">
+                                        <div class="flex space-x-2">
+                                            <a href="{% url 'course_detail' course.id %}" 
+                                                class="flex-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm text-center transition-colors">
+                                                <i class="fas fa-eye mr-1"></i> View Details
+                                            </a>
+                                            <button onclick="openEditCourseModal('{{ course.id }}', '{{ course.name|escapejs }}', '{{ course.description|escapejs }}', '{{ course.price }}')" 
+                                                class="px-3 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 text-sm transition-colors">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <form method="post" action="{% url 'delete_course' course.id %}" class="inline"
+                                                onsubmit="return confirm('Are you sure you want to delete this course?');">
+                                                {% csrf_token %}
+                                                <button type="submit" 
+                                                    class="px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 text-sm transition-colors">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="col-span-3 text-center py-12">
+                                <div class="mx-auto h-24 w-24 text-gray-400 mb-4">
+                                    <i class="fas fa-book-open text-6xl"></i>
+                                </div>
+                                <h3 class="text-lg font-medium text-gray-900">No courses yet</h3>
+                                <p class="mt-1 text-gray-500">Get started by creating your first course</p>
+                                <button onclick="openModal('courseModal')" 
+                                    class="mt-6 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                                    <i class="fas fa-plus mr-2"></i>Create New Course
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Modal -->
+    <div id="courseModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white animate-slide-up">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4 text-center">Create New Course</h3>
+                <form method="post" action="{% url 'create_course' %}" enctype="multipart/form-data" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Course Name</label>
+                        <input type="text" name="name" required 
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea name="description" rows="3" required 
+                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Price (₹)</label>
+                        <input type="number" name="price" required min="0" 
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="closeModal('courseModal')" 
+                                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            Create Course
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Modal -->
+    <div id="studentModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white animate-slide-up">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4 text-center">Add New Student</h3>
+                <form method="post" action="{% url 'add_student' %}" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Student Name</label>
+                        <input type="text" name="name" required 
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" name="email" required 
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Phone Number</label>
+                        <input type="tel" name="phone" required pattern="[0-9]{10}" 
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <p class="mt-1 text-sm text-gray-500">Enter 10 digit number</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Select Course</label>
+                        <select name="course" required 
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Choose a course</option>
+                            {% for course in courses %}
+                                <option value="{{ course.id }}">{{ course.name }} - ₹{{ course.price }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="closeModal('studentModal')" 
+                                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            Add Student
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Course Modal -->
+    <div id="editCourseModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white animate-slide-up">
+            <div class="mt-3">
+                <h3 class="text-lg font-medium text-gray-900 mb-4 text-center">Edit Course</h3>
+                <form id="editCourseForm" method="post" action="" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Course Name</label>
+                        <input type="text" name="name" id="editCourseName" required 
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Description</label>
+                        <textarea name="description" id="editCourseDescription" rows="3" required 
+                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Price (₹)</label>
+                        <input type="number" name="price" id="editCoursePrice" required min="0" 
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" onclick="closeModal('editCourseModal')" 
+                                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.body.classList.add('modal-active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.body.classList.remove('modal-active');
+        }
+
+        // Toggle sidebar
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.w-64');
+            sidebar.classList.toggle('-translate-x-full');
+        }
+
+        // Toggle notifications
+        function toggleNotifications() {
+            // Add notification functionality here
+            alert('Notifications feature coming soon!');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.add('hidden');
+                document.body.classList.remove('modal-active');
+            }
+        }
+
+        // Form validation with better UX
+        document.addEventListener('DOMContentLoaded', function() {
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const phoneInput = form.querySelector('input[type="tel"]');
+                    if (phoneInput && !/^\d{10}$/.test(phoneInput.value)) {
+                        e.preventDefault();
+                        alert('Please enter a valid 10-digit phone number');
+                        phoneInput.focus();
+                    }
+                });
+
+                // Real-time phone validation
+                const phoneInput = form.querySelector('input[type="tel"]');
+                if (phoneInput) {
+                    phoneInput.addEventListener('input', function(e) {
+                        this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10);
+                    });
+                }
+            });
+        });
+
+        // Course edit modal
+        function openEditCourseModal(courseId, name, description, price) {
+            const modal = document.getElementById('editCourseModal');
+            const form = document.getElementById('editCourseForm');
+            const nameInput = document.getElementById('editCourseName');
+            const descriptionInput = document.getElementById('editCourseDescription');
+            const priceInput = document.getElementById('editCoursePrice');
+
+            // Set form action URL
+            form.action = `/teacher/edit-course/${courseId}/`;
+            
+            // Decode HTML entities and set form values
+            const decoder = document.createElement('div');
+            
+            decoder.innerHTML = name;
+            nameInput.value = decoder.textContent;
+            
+            decoder.innerHTML = description;
+            descriptionInput.value = decoder.textContent;
+            
+            priceInput.value = price;
+
+            // Show modal
+            modal.classList.remove('hidden');
+            document.body.classList.add('modal-active');
+        }
+
+        // Course delete confirmation
+        function confirmDeleteCourse(courseId) {
+            if (confirm('Are you sure you want to delete this course? This action cannot be undone.')) {
+                const form = document.querySelector(`form[action="/teacher/course/${courseId}/delete/"]`);
+                if (form) {
+                    form.submit();
+                }
+            }
+        }
+
+        function handleLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                // Create a form to submit POST request for logout
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = "{% url 'teacher_logout' %}";
+                
+                // Add CSRF token
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = 'csrfmiddlewaretoken';
+                csrfToken.value = '{{ csrf_token }}';
+                form.appendChild(csrfToken);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        }
+
+        // Message handling with improved timing
+        document.addEventListener('DOMContentLoaded', function() {
+            const messages = [
+                {% for message in messages %}
+                    {
+                        text: "{{ message|escapejs }}",
+                        tags: "{{ message.tags }}"
+                    },
+                {% endfor %}
+            ];
+
+            if (messages.length > 0) {
+                const container = document.getElementById('messageContainer');
+                const decoder = document.createElement('div');
+                
+                messages.forEach((msg, index) => {
+                    setTimeout(() => {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'message';
+                        
+                        // Decode HTML entities in the message
+                        decoder.innerHTML = msg.text;
+                        messageDiv.textContent = decoder.textContent;
+                        
+                        container.appendChild(messageDiv);
+
+                        // Remove the message after animation
+                        setTimeout(() => {
+                            messageDiv.remove();
+                            // If this is the last message and it's a logout message, redirect after it's done
+                            if (index === messages.length - 1 && msg.text.includes('Logged out')) {
+                                window.location.href = "/teacher/";
+                            }
+                        }, 2000);
+                    }, index * 200);
+                });
+            }
+        });
+    </script>
+</body>
+</html> 
+</html> 

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shell {{ shell.shell_number }} - {{ course.name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .video-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .hidden {
+            display: none;
+        }
+        .slide-down {
+            animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-1rem);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .hover-scale {
+            transition: transform 0.2s ease-in-out;
+        }
+        .hover-scale:hover {
+            transform: scale(1.02);
+        }
+        .message-container {
+            position: fixed;
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 50;
+            min-width: 300px;
+            max-width: 90%;
+        }
+        .message {
+            animation: slideInDown 0.5s ease-out, fadeOut 0.5s ease-in 1.5s forwards;
+            background-color: rgba(34, 197, 94, 0.9);
+            backdrop-filter: blur(8px);
+        }
+        @keyframes slideInDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Top Navigation -->
+        <nav class="bg-white shadow-sm sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <div class="flex items-center">
+                        <a href="{% url 'course_detail' course.id %}" 
+                           class="group flex items-center text-gray-500 hover:text-blue-600 transition-colors">
+                            <i class="fas fa-arrow-left mr-2 transform group-hover:-translate-x-1 transition-transform"></i>
+                            <span>Back to Course</span>
+                        </a>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="text-xl font-semibold text-gray-800">Shell {{ shell.shell_number }}</span>
+                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                            {{ course.name }}
+                        </span>
+                    </div>
+                    <div class="w-20"></div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Message Container -->
+        {% if messages %}
+        <div class="message-container">
+            {% for message in messages %}
+            <div class="message px-6 py-3 rounded-lg shadow-lg text-white text-center mb-4">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Main Content -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Shell Info -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-8 hover-scale">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">Description</h3>
+                        <p class="text-lg text-gray-900">{{ shell.description|default:"No description provided" }}</p>
+                    </div>
+                    <div class="flex flex-col md:items-end justify-between">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-500 mb-2">Created</h3>
+                            <p class="text-lg text-gray-900">{{ shell.created_at|date:"d M Y" }}</p>
+                        </div>
+                        <div class="mt-4 md:mt-0">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                <i class="fas fa-clock mr-1"></i>
+                                {{ shell.created_at|timesince }} ago
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content Management -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Video Section -->
+                <div class="bg-white rounded-xl shadow-sm p-6 hover-scale">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-video mr-2 text-blue-600"></i>Video Content
+                        </h2>
+                        {% if shell.video_file %}
+                        <span class="px-3 py-1 text-sm text-green-700 bg-green-100 rounded-full flex items-center">
+                            <i class="fas fa-check mr-1"></i>Uploaded
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    {% if shell.video_file %}
+                    <!-- Video Player -->
+                    <div id="videoPlayer" class="mb-6 hidden">
+                        <div class="video-container bg-gray-100">
+                            <video controls class="rounded-xl shadow-lg" id="videoElement">
+                                <source src="{{ shell.video_file.url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- No Video Uploaded State -->
+                    <div class="mb-6 p-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 text-center">
+                        <div class="text-gray-400 mb-4">
+                            <i class="fas fa-film text-5xl"></i>
+                        </div>
+                        <h3 class="text-gray-800 font-medium mb-2">No Video Uploaded</h3>
+                        <p class="text-gray-500 text-sm mb-4">Upload a video to make it available to your students</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="flex justify-end space-x-3">
+                        {% if shell.video_file %}
+                        <button onclick="toggleVideo()" 
+                                class="inline-flex items-center px-4 py-2 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-all duration-200"
+                                id="toggleVideoBtn">
+                            <i class="fas fa-eye mr-2"></i>Show Video
+                        </button>
+                        {% endif %}
+                        <a href="{% url 'upload_video_page' course.id shell.id %}" 
+                           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-sm hover:shadow">
+                            <i class="fas fa-cloud-upload-alt mr-2"></i>
+                            {% if shell.video_file %}Replace Video{% else %}Upload Video{% endif %}
+                        </a>
+                    </div>
+                </div>
+
+                <!-- PDF Section -->
+                <div class="bg-white rounded-xl shadow-sm p-6 hover-scale">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900 flex items-center">
+                            <i class="fas fa-file-pdf mr-2 text-red-600"></i>PDF Content
+                        </h2>
+                        {% if shell.pdf_file %}
+                        <span class="px-3 py-1 text-sm text-green-700 bg-green-100 rounded-full flex items-center">
+                            <i class="fas fa-check mr-1"></i>Uploaded
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    {% if shell.pdf_file %}
+                    <div class="mb-6">
+                        <!-- PDF Viewer -->
+                        <div class="w-full h-[600px] mb-4 rounded-lg overflow-hidden border border-gray-200">
+                            <object
+                                data="{{ shell.pdf_file.url }}"
+                                type="application/pdf"
+                                class="w-full h-full">
+                                <div class="flex items-center justify-center h-full bg-gray-50">
+                                    <div class="text-center">
+                                        <p class="text-gray-600 mb-4">Unable to display PDF directly.</p>
+                                        <a href="{{ shell.pdf_file.url }}" 
+                                           class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                                           target="_blank">
+                                            <i class="fas fa-external-link-alt mr-2"></i>
+                                            Open PDF in New Tab
+                                        </a>
+                                    </div>
+                                </div>
+                            </object>
+                        </div>
+                        <!-- PDF Info and Download -->
+                        <div class="p-6 bg-red-50 rounded-xl border border-red-100">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <i class="fas fa-file-pdf text-3xl text-red-500 mr-4"></i>
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">Course Material</h4>
+                                        <p class="text-sm text-gray-500">PDF Document</p>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-4">
+                                    <a href="{{ shell.pdf_file.url }}" 
+                                       target="_blank"
+                                       class="inline-flex items-center px-4 py-2 border-2 border-red-600 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200">
+                                        <i class="fas fa-external-link-alt mr-2"></i>
+                                        Open in New Tab
+                                    </a>
+                                    <a href="{{ shell.pdf_file.url }}" 
+                                       download
+                                       class="inline-flex items-center px-4 py-2 border-2 border-red-600 rounded-lg text-red-600 hover:bg-red-50 transition-all duration-200">
+                                        <i class="fas fa-download mr-2"></i>
+                                        Download PDF
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'upload_pdf' course.id shell.id %}" 
+                          enctype="multipart/form-data" class="space-y-4">
+                        {% csrf_token %}
+                        <div class="flex items-center justify-center w-full">
+                            <label class="w-full flex flex-col items-center px-4 py-6 bg-white rounded-xl border-2 border-dashed border-gray-300 cursor-pointer hover:bg-gray-50 transition-all duration-200">
+                                <div class="flex flex-col items-center">
+                                    <i class="fas fa-cloud-upload-alt text-3xl text-blue-500 mb-2"></i>
+                                    <span class="text-sm text-gray-600">{% if shell.pdf_file %}Replace PDF{% else %}Click to upload PDF{% endif %}</span>
+                                    <span class="text-xs text-gray-500 mt-1">Maximum file size: 10MB</span>
+                                </div>
+                                <input type="file" name="pdf_file" accept=".pdf" class="hidden" onchange="this.form.submit()">
+                            </label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleVideo() {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const toggleBtn = document.getElementById('toggleVideoBtn');
+            const videoElement = document.getElementById('videoElement');
+
+            if (videoPlayer.classList.contains('hidden')) {
+                // Show video
+                videoPlayer.classList.remove('hidden');
+                videoPlayer.classList.add('slide-down');
+                toggleBtn.innerHTML = '<i class="fas fa-eye-slash mr-2"></i>Hide Video';
+                toggleBtn.classList.add('bg-blue-600', 'text-white');
+                toggleBtn.classList.remove('border-blue-600', 'text-blue-600');
+            } else {
+                // Hide video
+                videoPlayer.classList.add('hidden');
+                videoPlayer.classList.remove('slide-down');
+                toggleBtn.innerHTML = '<i class="fas fa-eye mr-2"></i>Show Video';
+                toggleBtn.classList.remove('bg-blue-600', 'text-white');
+                toggleBtn.classList.add('border-blue-600', 'text-blue-600');
+                // Pause the video when hiding
+                videoElement.pause();
+            }
+        }
+
+        // Auto-hide messages after 2 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const messages = document.querySelectorAll('.message');
+            messages.forEach(message => {
+                setTimeout(() => {
+                    message.style.display = 'none';
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html> 

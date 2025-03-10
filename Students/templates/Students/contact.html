@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - EduBridge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="fixed top-0 w-full bg-white/95 backdrop-blur-sm shadow-sm z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="text-2xl font-bold text-blue-600">EduBridge</div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="{% url 'students:student_index' %}" class="hover:text-blue-600 transition-colors">Home</a>
+                    <a href="{% url 'students:student_index' %}#courses" class="hover:text-blue-600 transition-colors">Courses</a>
+                    <a href="{% url 'students:student_index' %}#features" class="hover:text-blue-600 transition-colors">Features</a>
+                    <a href="{% url 'students:student_index' %}#about" class="hover:text-blue-600 transition-colors">About</a>
+                    <a href="{% url 'students:contact' %}" class="text-blue-600 transition-colors">Contact</a>
+                </div>
+                <div class="hidden md:flex space-x-4">
+                    {% if user.is_authenticated %}
+                        <div class="flex items-center space-x-4">
+                            <span class="text-gray-700">Welcome, {{ user.first_name }}</span>
+                            <a href="{% url 'students:student_dashboard' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Dashboard</a>
+                            <a href="{% url 'students:student_logout' %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">Logout</a>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'students:student_login' %}" class="px-4 py-2 text-blue-600 hover:text-blue-700">Login</a>
+                        <a href="{% url 'students:student_signup' %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Sign Up</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contact Header -->
+    <section class="pt-32 pb-20 bg-gradient-to-b from-blue-50 to-white">
+        <div class="container mx-auto px-6">
+            <h1 class="text-4xl md:text-5xl font-bold text-center mb-8" data-aos="fade-up">Contact Us</h1>
+            <p class="text-xl text-gray-600 text-center max-w-3xl mx-auto mb-12" data-aos="fade-up" data-aos-delay="100">
+                Have questions about our courses or need support? We're here to help. Reach out to our team and we'll get back to you as soon as possible.
+            </p>
+        </div>
+    </section>
+
+    <!-- Contact Form Section -->
+    <section class="py-20 bg-white">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                <!-- Contact Form -->
+                <div class="bg-gray-50 p-8 rounded-lg shadow-lg" data-aos="fade-right">
+                    {% if messages %}
+                    <div class="mb-6">
+                        {% for message in messages %}
+                        <div class="p-4 rounded-lg {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% endif %}">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <form method="post" class="space-y-6">
+                        {% csrf_token %}
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Name</label>
+                            <input type="text" id="name" name="name" required 
+                                   value="{{ form_data.name|default:'' }}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input type="email" id="email" name="email" required 
+                                   value="{{ form_data.email|default:'' }}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="subject" class="block text-sm font-medium text-gray-700 mb-1">Subject</label>
+                            <input type="text" id="subject" name="subject" required 
+                                   value="{{ form_data.subject|default:'' }}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                            <textarea id="message" name="message" rows="4" required 
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-600 focus:border-transparent">{{ form_data.message|default:'' }}</textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                            Send Message
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Contact Information -->
+                <div data-aos="fade-left">
+                    <div class="bg-gray-50 p-8 rounded-lg shadow-lg mb-8">
+                        <h3 class="text-2xl font-semibold mb-6">Contact Information</h3>
+                        <div class="space-y-6">
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-map-marker-alt text-xl text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-2">Our Location</h4>
+                                    <p class="text-gray-600">123 Education Street<br>Tech City, Indore</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-phone text-xl text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-2">Phone</h4>
+                                    <p class="text-gray-600">+91 xxxxxxxxxx</p>
+                                    <p class="text-gray-600">Mon-Fri 9am-6pm</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-4">
+                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-envelope text-xl text-blue-600"></i>
+                                </div>
+                                <div>
+                                    <h4 class="text-lg font-semibold mb-2">Email</h4>
+                                    <p class="text-gray-600">contact@edubridge.com</p>
+                                    <p class="text-gray-600">support@edubridge.com</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Office Hours -->
+                    <div class="bg-gray-50 p-8 rounded-lg shadow-lg">
+                        <h3 class="text-2xl font-semibold mb-6">Office Hours</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Monday - Friday</span>
+                                <span class="font-medium">9:00 AM - 6:00 PM</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Saturday</span>
+                                <span class="font-medium">10:00 AM - 4:00 PM</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Sunday</span>
+                                <span class="font-medium">Closed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4">EduBridge</h3>
+                    <p class="text-gray-400">Empowering students worldwide with quality online education.</p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'students:student_index' %}" class="text-gray-400 hover:text-white">Home</a></li>
+                        <li><a href="{% url 'students:student_index' %}#courses" class="text-gray-400 hover:text-white">Courses</a></li>
+                        <li><a href="{% url 'students:student_index' %}#features" class="text-gray-400 hover:text-white">Features</a></li>
+                        <li><a href="{% url 'students:student_index' %}#about" class="text-gray-400 hover:text-white">About</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li>support@edubridge.com</li>
+                        <li>+91 xxxxxxxxxx</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 EduBridge. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+    </script>
+</body>
+</html> 
