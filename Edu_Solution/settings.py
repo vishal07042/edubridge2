@@ -25,7 +25,13 @@ SECRET_KEY = 'django-insecure--ry5)@)rq=7+won8!g2i#lk0=816j-vphlgjfnuf-tjs$9ds4^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'edubridge2.onrender.com',
+    'localhost',
+    '127.0.0.1',
+    '*',
+    "*",
+]
 
 
 # Application definition
